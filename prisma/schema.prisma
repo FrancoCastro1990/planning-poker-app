@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This schema defines the data models for the Planning Poker app.
+/// The `User` model represents a user of the app, with a unique `id`, `name`, `imageUrl`, and a list of `games` they have participated in.
+/// The `Game` model represents a game session, with a unique `id`, `name`, `avg` score, a list of `users` who have participated in the game, and an array of `weights` used to calculate the average score.
+/// The `MemberRole` enum represents the role of a user in a game session, with the only possible value being `GUEST`.
+model User {
+  id       Int    @id @default(autoincrement())
+  name     String
+  imageUrl String @db.Text
+
+  games     Game[]   @relation("game_users")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Game {
+  id   Int    @id @default(autoincrement())
+  name String
+  avg  Float  @default(0)
+
+  users   User[] @relation("game_users")
+  weights Int[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum MemberRole {
+  GUEST
+}
